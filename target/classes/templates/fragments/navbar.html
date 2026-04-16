@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<body>
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark"
+     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 2px 16px rgba(102,126,234,0.3);">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">
+            <i class="bi bi-calendar-event me-2"></i>Event Management
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto gap-1">
+                <li class="nav-item">
+                    <a class="nav-link text-white opacity-85" th:href="@{/dashboard}">
+                        <i class="bi bi-house me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white opacity-85" th:href="@{/events}">
+                        <i class="bi bi-calendar3 me-1"></i>Events
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white opacity-85" th:href="@{/my-bookings}">
+                        <i class="bi bi-bookmark me-1"></i>My Bookings
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <!-- Admin actions -->
+                <span sec:authorize="hasAuthority('ROLE_ADMIN')" class="d-flex gap-2">
+                    <a th:href="@{/admin/events}"
+                       class="btn btn-sm text-white fw-500"
+                       style="background:rgba(244,63,94,0.85); border:none; border-radius:8px;">
+                        <i class="bi bi-shield-check me-1"></i>Manage Events
+                    </a>
+                    <a th:href="@{/admin/scan}"
+                       class="btn btn-sm text-white fw-500"
+                       style="background:rgba(244,63,94,0.85); border:none; border-radius:8px;">
+                        <i class="bi bi-qr-code-scan me-1"></i>Scan
+                    </a>
+                </span>
+
+                <!-- User info -->
+                <span class="navbar-text text-white d-flex align-items-center gap-1"
+                      style="font-size:.88rem; opacity:.9;">
+                    <i class="bi bi-person-circle"></i>
+                    <span sec:authentication="name">User</span>
+                </span>
+
+                <!-- Logout -->
+                <form th:action="@{/logout}" method="post" class="mb-0">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-outline-light btn-sm"
+                            style="border-radius:8px; font-size:.85rem;">
+                        <i class="bi bi-box-arrow-right me-1"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+</body>
+</html>

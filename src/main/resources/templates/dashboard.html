@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard — EventHub</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <style>
+        body { background: #f1f5f9; }
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px; color: white;
+            padding: 2.5rem; margin-bottom: 2rem;
+            position: relative; overflow: hidden;
+        }
+        .welcome-banner::after {
+            content: '\F1F6';
+            font-family: 'Bootstrap-icons';
+            position: absolute; right: 2rem; top: 50%;
+            transform: translateY(-50%);
+            font-size: 7rem; opacity: .08;
+        }
+        .welcome-banner h2 { font-weight: 700; font-size: 1.75rem; margin-bottom: .35rem; }
+        .welcome-banner p  { opacity: .85; margin: 0; font-size: 1rem; }
+        .stat-box {
+            background: white; border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            display: flex; align-items: center; gap: 1.25rem;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .stat-box:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
+        .stat-icon {
+            width: 56px; height: 56px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; flex-shrink: 0;
+        }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: #1e293b; line-height: 1; }
+        .stat-label { font-size: .83rem; color: #64748b; margin-top: 3px; }
+        .action-card {
+            border: none; border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            transition: transform .2s, box-shadow .2s; overflow: hidden;
+        }
+        .action-card:hover { transform: translateY(-5px); box-shadow: 0 10px 36px rgba(0,0,0,0.13); }
+        .action-card .card-header { border: none; padding: 1.5rem; font-weight: 700; font-size: 1rem; }
+        .action-card .card-body   { padding: 1.5rem; background: white; }
+        .card-header-admin { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+        .card-header-user  { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .btn-action {
+            border-radius: 10px; font-weight: 600; padding: .55rem 1.25rem;
+            font-size: .9rem; transition: all .2s;
+        }
+        .btn-action:hover { transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container py-4">
+
+    <div class="welcome-banner">
+        <h2>Welcome back, <span sec:authentication="name">User</span> 👋</h2>
+        <p>Here's what's happening with your events today.</p>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-box">
+                <div class="stat-icon" style="background:#eff6ff; color:#2563eb;">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+                <div>
+                    <div class="stat-value" th:text="${totalEvents}">0</div>
+                    <div class="stat-label">Total Events</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-box">
+                <div class="stat-icon" style="background:#f0fdf4; color:#16a34a;">
+                    <i class="bi bi-ticket-perforated"></i>
+                </div>
+                <div>
+                    <div class="stat-value" th:text="${myBookingCount}">0</div>
+                    <div class="stat-label">My Bookings</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6" sec:authorize="hasAuthority('ROLE_ADMIN')">
+            <div class="action-card card h-100">
+                <div class="card-header card-header-admin text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-check fs-5"></i>Admin Panel
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">Create, edit and delete events. Scan tickets at the entrance.</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a th:href="@{/admin/events}" class="btn btn-danger btn-action">
+                            <i class="bi bi-calendar-plus me-1"></i>Manage Events
+                        </a>
+                        <a th:href="@{/admin/scan}" class="btn btn-outline-danger btn-action">
+                            <i class="bi bi-qr-code-scan me-1"></i>Scan Tickets
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="action-card card h-100">
+                <div class="card-header card-header-user text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-ticket-perforated fs-5"></i>My Events
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">Browse upcoming events and manage your personal bookings.</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a th:href="@{/events}" class="btn text-white btn-action"
+                           style="background:linear-gradient(135deg,#667eea,#764ba2);border:none;">
+                            <i class="bi bi-search me-1"></i>Browse Events
+                        </a>
+                        <a th:href="@{/my-bookings}" class="btn btn-outline-secondary btn-action">
+                            <i class="bi bi-bookmark me-1"></i>My Bookings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

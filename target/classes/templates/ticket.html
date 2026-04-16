@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Your Ticket — Event Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <style>
+        body { background: #f1f5f9; }
+        .ticket-wrapper { max-width: 500px; margin: 2.5rem auto; }
+        .ticket {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(102,126,234,0.18);
+            overflow: hidden;
+        }
+        .ticket-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 2rem 1.5rem;
+        }
+        .ticket-header h3 { font-weight: 700; margin-bottom: .4rem; }
+        .ticket-header .sub { opacity: .85; font-size: .9rem; }
+        .ticket-body { padding: 1.75rem 2rem; background: white; }
+        .ticket-row {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .7rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .ticket-row:last-child { border-bottom: none; }
+        .t-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #667eea22, #764ba222);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            color: #667eea; font-size: 1rem; flex-shrink: 0;
+        }
+        .t-label { font-size: .75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; }
+        .t-value { font-weight: 600; color: #1e293b; font-size: .95rem; }
+        .ticket-divider {
+            border: none;
+            border-top: 2px dashed #e2e8f0;
+            margin: 0;
+        }
+        .qr-section {
+            background: white;
+            padding: 1.5rem 2rem 2rem;
+            text-align: center;
+        }
+        .qr-section img {
+            border-radius: 12px;
+            border: 3px solid #f1f5f9;
+            padding: 8px;
+        }
+        .ticket-code {
+            font-family: monospace;
+            font-size: .85rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: .4rem .85rem;
+            color: #475569;
+            display: inline-block;
+            margin-top: .5rem;
+        }
+        .status-confirmed { background: #dcfce7; color: #16a34a; border-radius: 20px; padding: .25rem .85rem; font-size: .8rem; font-weight: 600; }
+        .status-used      { background: #e2e8f0; color: #64748b; border-radius: 20px; padding: .25rem .85rem; font-size: .8rem; font-weight: 600; }
+        .btn-print {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none; border-radius: 10px; color: white;
+            font-weight: 600; padding: .65rem 1.5rem;
+            transition: opacity .2s, transform .1s;
+        }
+        .btn-print:hover { opacity: .9; transform: translateY(-1px); color: white; }
+        @media print {
+            nav, .no-print { display: none !important; }
+            body { background: white; }
+            .ticket { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}" class="no-print"></nav>
+
+<div class="container ticket-wrapper">
+    <div class="ticket">
+        <!-- Header -->
+        <div class="ticket-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="sub mb-1"><i class="bi bi-ticket-perforated me-1"></i>Event Ticket</div>
+                    <h3 th:text="${booking.event.title}"></h3>
+                    <div class="sub" th:text="${#temporals.format(booking.event.eventDate, 'EEEE, dd MMMM yyyy · HH:mm')}"></div>
+                </div>
+                <span th:switch="${booking.status}">
+                    <span th:case="'CONFIRMED'" class="status-confirmed"><i class="bi bi-check-circle me-1"></i>Confirmed</span>
+                    <span th:case="'USED'"      class="status-used"><i class="bi bi-check2-all me-1"></i>Used</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div class="ticket-body">
+            <div class="ticket-row">
+                <div class="t-icon"><i class="bi bi-person-fill"></i></div>
+                <div>
+                    <div class="t-label">Attendee</div>
+                    <div class="t-value" th:text="${booking.user.username}"></div>
+                </div>
+            </div>
+            <div class="ticket-row">
+                <div class="t-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                <div>
+                    <div class="t-label">Venue</div>
+                    <div class="t-value" th:text="${booking.event.venue}"></div>
+                </div>
+            </div>
+            <div class="ticket-row">
+                <div class="t-icon"><i class="bi bi-clock-history"></i></div>
+                <div>
+                    <div class="t-label">Booked On</div>
+                    <div class="t-value" th:text="${#temporals.format(booking.bookingDate, 'dd MMM yyyy, HH:mm')}"></div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="ticket-divider"/>
+
+        <!-- QR Code Ticket — generated using ZXing library -->
+        <div class="qr-section">
+            <p class="text-muted small mb-3">
+                <i class="bi bi-shield-check me-1" style="color:#667eea;"></i>
+                Present this QR code at the venue entrance
+            </p>
+            <img th:src="'data:image/png;base64,' + ${qrBase64}" alt="Ticket QR Code" width="200" height="200"/>
+            <div>
+                <span class="ticket-code" th:text="${booking.ticketCode}"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex gap-3 justify-content-center mt-4 no-print">
+        <button onclick="window.print()" class="btn-print btn">
+            <i class="bi bi-printer me-2"></i>Print Ticket
+        </button>
+        <a href="/my-bookings" class="btn btn-outline-secondary rounded-3 px-4">
+            <i class="bi bi-arrow-left me-1"></i>My Bookings
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

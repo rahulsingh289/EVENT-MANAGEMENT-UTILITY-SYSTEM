@@ -1,0 +1,5 @@
+{
+    "liveServer.settings.port": 5501,
+    "kiroAgent.configureMCP": "Disabled",
+    "java.compile.nullAnalysis.mode": "automatic"
+}

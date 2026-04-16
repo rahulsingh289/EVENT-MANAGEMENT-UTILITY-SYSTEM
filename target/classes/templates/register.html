@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Register — Event Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .auth-card { border: none; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+        .auth-card .card-body { padding: 2.5rem; }
+        .brand-icon {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1rem; transition: background .3s;
+        }
+        .form-control {
+            border-radius: 10px; padding: 0.65rem 1rem;
+            border: 1.5px solid #e2e8f0; transition: border-color .2s, box-shadow .2s;
+        }
+        .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+        .input-group-text {
+            border-radius: 10px 0 0 10px; background: #f8fafc;
+            border: 1.5px solid #e2e8f0; border-right: none; color: #94a3b8;
+        }
+        .input-group .form-control { border-radius: 0 10px 10px 0; }
+        .divider { color: #94a3b8; font-size: .85rem; }
+        .role-selector { display: flex; gap: .75rem; margin-bottom: 1.5rem; }
+        .role-option { flex: 1; }
+        .role-option input[type="radio"] { display: none; }
+        .role-option label {
+            display: flex; align-items: center; justify-content: center; gap: .5rem;
+            padding: .65rem 1rem; border-radius: 10px; cursor: pointer; font-weight: 600;
+            border: 2px solid #e2e8f0; color: #94a3b8; transition: all .2s; font-size: .9rem;
+            width: 100%;
+        }
+        .role-option input[type="radio"]:checked + label.user-label {
+            border-color: #667eea; color: #667eea; background: #eef2ff;
+        }
+        .role-option input[type="radio"]:checked + label.admin-label {
+            border-color: #f43f5e; color: #f43f5e; background: #fff1f2;
+        }
+        .btn-submit {
+            border: none; border-radius: 10px; padding: 0.7rem; font-weight: 600;
+            color: white; transition: opacity .2s, transform .1s; width: 100%;
+        }
+        .btn-submit:hover { opacity: .9; transform: translateY(-1px); color: white; }
+        .btn-user  { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .btn-admin { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center py-4">
+<div style="width:100%;max-width:460px;" class="px-3">
+    <div class="auth-card card">
+        <div class="card-body">
+            <div class="brand-icon" id="brandIcon">
+                <i class="bi bi-person-plus text-white fs-4" id="brandIconInner"></i>
+            </div>
+            <h4 class="text-center fw-bold mb-1" id="formTitle">Create Account</h4>
+            <p class="text-center text-muted mb-4" style="font-size:.9rem;" id="formSubtitle">Join Event Management today</p>
+
+            <div th:if="${error}" class="alert alert-danger d-flex align-items-center gap-2 py-2" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/register}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="role-selector">
+                    <div class="role-option">
+                        <input type="radio" name="registerRole" id="roleUser" value="user"
+                               th:checked="${selectedRole != 'admin'}"/>
+                        <label for="roleUser" class="user-label">
+                            <i class="bi bi-person-fill"></i> User
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" name="registerRole" id="roleAdmin" value="admin"
+                               th:checked="${selectedRole == 'admin'}"/>
+                        <label for="roleAdmin" class="admin-label">
+                            <i class="bi bi-shield-fill"></i> Admin
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3" id="secretField" style="display:none;">
+                    <label class="form-label fw-semibold" style="font-size:.9rem;">Admin Secret Key</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                        <input type="password" name="secret" id="secretInput" class="form-control"
+                               placeholder="Enter admin secret key"/>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:.9rem;">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" name="username" class="form-control"
+                               th:value="${user?.username}" placeholder="Choose a username" required autofocus/>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:.9rem;">Email address</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" name="email" class="form-control"
+                               th:value="${user?.email}" placeholder="you@example.com" required/>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" style="font-size:.9rem;">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" class="form-control"
+                               placeholder="Create a password" required/>
+                    </div>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-submit btn-user" id="submitBtn">
+                        <i class="bi bi-person-plus me-1"></i>Create Account
+                    </button>
+                </div>
+            </form>
+
+            <p class="text-center mb-0 divider">
+                Already have an account?
+                <a th:href="@{/login}" class="text-decoration-none fw-semibold" style="color:#667eea;">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const roleUser    = document.getElementById('roleUser');
+    const roleAdmin   = document.getElementById('roleAdmin');
+    const secretField = document.getElementById('secretField');
+    const secretInput = document.getElementById('secretInput');
+    const brandIcon   = document.getElementById('brandIcon');
+    const brandInner  = document.getElementById('brandIconInner');
+    const formTitle   = document.getElementById('formTitle');
+    const formSub     = document.getElementById('formSubtitle');
+    const submitBtn   = document.getElementById('submitBtn');
+
+    function updateForm() {
+        const isAdmin = roleAdmin.checked;
+        secretField.style.display = isAdmin ? 'block' : 'none';
+        secretInput.required = isAdmin;
+        if (isAdmin) {
+            brandIcon.style.background = 'linear-gradient(135deg,#f43f5e,#e11d48)';
+            brandInner.className = 'bi bi-shield-check text-white fs-4';
+            formTitle.textContent = 'Create Admin Account';
+            formSub.textContent = 'Register a new administrator';
+            submitBtn.className = 'btn btn-submit btn-admin';
+            submitBtn.innerHTML = '<i class="bi bi-shield-check me-1"></i>Create Admin Account';
+        } else {
+            brandIcon.style.background = 'linear-gradient(135deg,#667eea,#764ba2)';
+            brandInner.className = 'bi bi-person-plus text-white fs-4';
+            formTitle.textContent = 'Create Account';
+            formSub.textContent = 'Join Event Management today';
+            submitBtn.className = 'btn btn-submit btn-user';
+            submitBtn.innerHTML = '<i class="bi bi-person-plus me-1"></i>Create Account';
+        }
+    }
+
+    roleUser.addEventListener('change', updateForm);
+    roleAdmin.addEventListener('change', updateForm);
+    updateForm();
+</script>
+</body>
+</html>

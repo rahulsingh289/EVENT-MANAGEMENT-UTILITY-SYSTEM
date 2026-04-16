@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${event.title} + ' — Event Management'">Event Detail</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <style>
+        body { background: #f1f5f9; }
+        .detail-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+            overflow: hidden;
+        }
+        .detail-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2.5rem;
+        }
+        .detail-header h2 { font-weight: 700; margin-bottom: .5rem; }
+        .detail-body { padding: 2rem 2.5rem; }
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .85rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: .95rem;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, #667eea22, #764ba222);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: #667eea;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .info-label { font-size: .78rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; }
+        .info-value { font-weight: 600; color: #1e293b; }
+        .btn-book-main {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            padding: .75rem 2rem;
+            font-size: 1rem;
+            transition: opacity .2s, transform .1s;
+        }
+        .btn-book-main:hover { opacity: .9; transform: translateY(-1px); color: white; }
+        .price-badge {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: .35rem 1rem;
+            font-size: .9rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container py-4" style="max-width: 760px;">
+
+    <!-- Alerts -->
+    <div th:if="${error}" class="alert alert-danger d-flex align-items-center gap-2 rounded-3 mb-3">
+        <i class="bi bi-exclamation-circle-fill"></i><span th:text="${error}"></span>
+    </div>
+    <div th:if="${success}" class="alert alert-success d-flex align-items-center gap-2 rounded-3 mb-3">
+        <i class="bi bi-check-circle-fill"></i><span th:text="${success}"></span>
+    </div>
+
+    <div class="detail-card">
+        <!-- Header -->
+        <div class="detail-header">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h2 th:text="${event.title}"></h2>
+                    <p class="mb-0 opacity-75" th:text="${event.description}"></p>
+                </div>
+                <span class="price-badge"
+                      th:text="${event.price != null and event.price > 0} ? '₹' + ${event.price} : 'Free'"></span>
+            </div>
+        </div>
+
+        <!-- Info rows -->
+        <div class="detail-body">
+            <div class="info-row">
+                <div class="info-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                <div>
+                    <div class="info-label">Venue</div>
+                    <div class="info-value" th:text="${event.venue}"></div>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-icon"><i class="bi bi-calendar3"></i></div>
+                <div>
+                    <div class="info-label">Date</div>
+                    <div class="info-value" th:text="${#temporals.format(event.eventDate, 'EEEE, dd MMMM yyyy')}"></div>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-icon"><i class="bi bi-clock"></i></div>
+                <div>
+                    <div class="info-label">Time</div>
+                    <div class="info-value" th:text="${#temporals.format(event.eventDate, 'HH:mm')}"></div>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-icon"><i class="bi bi-people-fill"></i></div>
+                <div>
+                    <div class="info-label">Capacity</div>
+                    <div class="info-value" th:text="${event.capacity} + ' seats available'"></div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 mt-4 flex-wrap">
+                <form th:action="@{/events/{id}/book(id=${event.id})}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn-book-main btn">
+                        <i class="bi bi-ticket-perforated me-2"></i>Book This Event
+                    </button>
+                </form>
+                <a href="/events" class="btn btn-outline-secondary rounded-3 px-4">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Events
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

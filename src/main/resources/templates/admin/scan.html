@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Scan Ticket — Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <style>
+        body { background: #f1f5f9; }
+        .page-banner {
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+            border-radius: 16px;
+            color: white;
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+        }
+        .page-banner h2 { font-weight: 700; margin-bottom: .25rem; }
+        .page-banner p  { opacity: .85; margin: 0; }
+
+        .scan-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            overflow: hidden;
+        }
+        .scan-card .card-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: .9rem;
+            color: #374151;
+        }
+        .scan-card .card-body { padding: 1.75rem; background: white; }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            padding: .65rem 1rem;
+            transition: border-color .2s, box-shadow .2s;
+            font-size: .95rem;
+        }
+        .form-control:focus {
+            border-color: #f43f5e;
+            box-shadow: 0 0 0 3px rgba(244,63,94,0.15);
+            outline: none;
+        }
+        .input-group-text {
+            border-radius: 10px 0 0 10px;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-right: none;
+            color: #94a3b8;
+        }
+        .input-group .form-control { border-radius: 0 10px 10px 0; }
+
+        .btn-validate {
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            border: none; border-radius: 10px; color: white;
+            font-weight: 600; padding: .7rem;
+            transition: opacity .2s, transform .1s;
+        }
+        .btn-validate:hover { opacity: .9; transform: translateY(-1px); color: white; }
+
+        /* Result card */
+        .result-card {
+            border: none; border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            overflow: hidden;
+        }
+        .result-header {
+            padding: 1.25rem 1.75rem;
+            font-weight: 700; font-size: 1rem;
+            display: flex; align-items: center; gap: .6rem;
+        }
+        .result-body { padding: 1.25rem 1.75rem; background: white; }
+        .result-row {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .7rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: .92rem;
+        }
+        .result-row:last-child { border-bottom: none; }
+        .r-icon {
+            width: 36px; height: 36px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+        .r-label { font-size: .75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .4px; }
+        .r-value { font-weight: 600; color: #1e293b; }
+
+        /* How-to hint box */
+        .hint-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            font-size: .88rem;
+            color: #1d4ed8;
+        }
+        .hint-box i { font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container py-4" style="max-width: 620px;">
+
+    <div class="page-banner">
+        <h2><i class="bi bi-qr-code-scan me-2"></i>Ticket Scanner</h2>
+        <p>Validate attendee tickets at the venue entrance</p>
+    </div>
+
+    <!-- ── Result: valid ── -->
+    <div th:if="${booking}" class="result-card mb-4">
+        <div class="result-header" style="background: linear-gradient(135deg,#dcfce7,#bbf7d0); color:#15803d;">
+            <i class="bi bi-check-circle-fill fs-5"></i>
+            Entry Granted — Ticket Valid
+        </div>
+        <div class="result-body">
+            <div class="result-row">
+                <div class="r-icon" style="background:#f0fdf4; color:#16a34a;"><i class="bi bi-person-fill"></i></div>
+                <div>
+                    <div class="r-label">Attendee</div>
+                    <div class="r-value" th:text="${booking.user.username}"></div>
+                </div>
+            </div>
+            <div class="result-row">
+                <div class="r-icon" style="background:#eff6ff; color:#2563eb;"><i class="bi bi-calendar-event"></i></div>
+                <div>
+                    <div class="r-label">Event</div>
+                    <div class="r-value" th:text="${booking.event.title}"></div>
+                </div>
+            </div>
+            <div class="result-row">
+                <div class="r-icon" style="background:#fef9c3; color:#ca8a04;"><i class="bi bi-geo-alt-fill"></i></div>
+                <div>
+                    <div class="r-label">Venue</div>
+                    <div class="r-value" th:text="${booking.event.venue}"></div>
+                </div>
+            </div>
+            <div class="result-row">
+                <div class="r-icon" style="background:#f5f3ff; color:#7c3aed;"><i class="bi bi-upc-scan"></i></div>
+                <div>
+                    <div class="r-label">Ticket Code</div>
+                    <div class="r-value"><code th:text="${booking.ticketCode}"></code></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Result: error ── -->
+    <div th:if="${error}" class="result-card mb-4">
+        <div class="result-header" style="background: linear-gradient(135deg,#fee2e2,#fecaca); color:#dc2626;">
+            <i class="bi bi-x-circle-fill fs-5"></i>
+            Invalid Ticket
+        </div>
+        <div class="result-body">
+            <p class="mb-0 text-danger" th:text="${error}"></p>
+        </div>
+    </div>
+
+    <!-- ── How it works ── -->
+    <div class="hint-box d-flex gap-3 align-items-start mb-4" th:if="${booking == null and error == null}">
+        <i class="bi bi-info-circle-fill mt-1"></i>
+        <div>
+            <strong>How scanning works</strong><br>
+            Attendees show their QR ticket on their phone. Scan it with your phone's native camera app —
+            it will open this page and validate the ticket automatically.
+            You can also type the ticket code below if needed.
+        </div>
+    </div>
+
+    <!-- ── Manual entry ── -->
+    <div class="scan-card card">
+        <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-keyboard" style="color:#f43f5e;"></i>
+            Manual Ticket Entry
+        </div>
+        <div class="card-body">
+            <form method="post" action="/admin/scan">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <label class="form-label fw-semibold" style="font-size:.88rem; color:#374151;">
+                    Ticket Code
+                </label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
+                    <input type="text" name="ticketCode" id="ticketCodeInput"
+                           class="form-control" placeholder="e.g. TKT-1-2-ABCD1234" required
+                           autocomplete="off" autocapitalize="characters">
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn-validate btn">
+                        <i class="bi bi-check2-circle me-1"></i>Validate Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
