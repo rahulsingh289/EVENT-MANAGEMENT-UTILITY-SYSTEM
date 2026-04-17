@@ -83,10 +83,16 @@ public class BookingService {
     /**
      * Validates a ticket by its code. Marks it as USED if valid.
      * Returns the booking if valid, throws if invalid/already used/cancelled.
+     * Also checks if the admin scanning is the event creator.
      */
-    public Booking validateAndUseTicket(String ticketCode) {
+    public Booking validateAndUseTicket(String ticketCode, String adminUsername) {
         Booking booking = bookingRepository.findByTicketCode(ticketCode)
                 .orElseThrow(() -> new RuntimeException("Invalid ticket code."));
+
+        // Check if the admin is the creator of this event
+        if (!booking.getEvent().getCreatedBy().equals(adminUsername)) {
+            throw new RuntimeException("You can only scan tickets for your own events.");
+        }
 
         if ("USED".equals(booking.getStatus())) {
             throw new RuntimeException("Ticket has already been used.");

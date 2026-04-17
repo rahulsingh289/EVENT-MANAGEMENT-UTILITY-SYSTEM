@@ -87,15 +87,6 @@
                     </div>
                 </div>
 
-                <div class="mb-3" id="secretField" style="display:none;">
-                    <label class="form-label fw-semibold" style="font-size:.9rem;">Admin Secret Key</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
-                        <input type="password" name="secret" id="secretInput" class="form-control"
-                               placeholder="Enter admin secret key"/>
-                    </div>
-                </div>
-
                 <div class="mb-3">
                     <label class="form-label fw-semibold" style="font-size:.9rem;">Username</label>
                     <div class="input-group">
@@ -141,8 +132,6 @@
 <script>
     const roleUser    = document.getElementById('roleUser');
     const roleAdmin   = document.getElementById('roleAdmin');
-    const secretField = document.getElementById('secretField');
-    const secretInput = document.getElementById('secretInput');
     const brandIcon   = document.getElementById('brandIcon');
     const brandInner  = document.getElementById('brandIconInner');
     const formTitle   = document.getElementById('formTitle');
@@ -151,13 +140,11 @@
 
     function updateForm() {
         const isAdmin = roleAdmin.checked;
-        secretField.style.display = isAdmin ? 'block' : 'none';
-        secretInput.required = isAdmin;
         if (isAdmin) {
             brandIcon.style.background = 'linear-gradient(135deg,#f43f5e,#e11d48)';
             brandInner.className = 'bi bi-shield-check text-white fs-4';
             formTitle.textContent = 'Create Admin Account';
-            formSub.textContent = 'Register a new administrator';
+            formSub.textContent = 'Register as event organizer';
             submitBtn.className = 'btn btn-submit btn-admin';
             submitBtn.innerHTML = '<i class="bi bi-shield-check me-1"></i>Create Admin Account';
         } else {

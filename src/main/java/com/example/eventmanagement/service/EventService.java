@@ -23,17 +23,27 @@ public class EventService {
         return eventRepository.findAll();
     }
 
+    public List<Event> getEventsByCreator(String username) {
+        return eventRepository.findByCreatedBy(username);
+    }
+
     public Event getEventById(Long id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found: " + id));
     }
 
     public Event createEvent(Event event) {
+        if (eventRepository.existsByTitleAndCreatedBy(event.getTitle(), event.getCreatedBy())) {
+            throw new RuntimeException("You already have an event with this title. Please use a different title.");
+        }
         return eventRepository.save(event);
     }
 
-    public Event updateEvent(Long id, Event updated) {
+    public Event updateEvent(Long id, Event updated, String username) {
         Event existing = getEventById(id);
+        if (!existing.getCreatedBy().equals(username)) {
+            throw new RuntimeException("You can only edit your own events.");
+        }
         existing.setTitle(updated.getTitle());
         existing.setDescription(updated.getDescription());
         existing.setVenue(updated.getVenue());
@@ -44,7 +54,11 @@ public class EventService {
     }
 
     @Transactional
-    public void deleteEvent(Long id) {
+    public void deleteEvent(Long id, String username) {
+        Event event = getEventById(id);
+        if (!event.getCreatedBy().equals(username)) {
+            throw new RuntimeException("You can only delete your own events.");
+        }
         // Remove all bookings for this event first to avoid FK constraint violation
         bookingRepository.deleteByEventId(id);
         eventRepository.deleteById(id);

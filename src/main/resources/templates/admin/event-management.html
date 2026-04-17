@@ -58,6 +58,15 @@
             border-radius: 20px; padding: .2rem .75rem;
             font-size: .8rem; font-weight: 600;
         }
+        .status-badge {
+            border-radius: 20px; padding: .2rem .75rem;
+            font-size: .75rem; font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-published { background: #dcfce7; color: #16a34a; }
+        .status-draft { background: #f3f4f6; color: #6b7280; }
+        .status-cancelled { background: #fee2e2; color: #dc2626; }
+        .status-completed { background: #dbeafe; color: #2563eb; }
         .empty-state { text-align: center; padding: 3rem 2rem; color: #94a3b8; }
         .empty-state i { font-size: 2.5rem; margin-bottom: .75rem; display: block; }
     </style>
@@ -101,6 +110,7 @@
                         <th>Date</th>
                         <th>Capacity</th>
                         <th>Price</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -122,6 +132,11 @@
                                   class="price-tag" th:text="'₹' + ${event.price}"></span>
                             <span th:if="${event.price == null or event.price == 0}"
                                   class="price-free">Free</span>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${'status-' + #strings.toLowerCase(event.status ?: 'published')}"
+                                  th:text="${event.status ?: 'PUBLISHED'}"></span>
                         </td>
                         <td>
                             <div class="d-flex gap-1 flex-wrap">

@@ -38,7 +38,7 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                 // Public pages
-                .requestMatchers("/login", "/register").permitAll()
+                .requestMatchers("/", "/login", "/register", "/error").permitAll()
                 // Static resources
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
                 // Admin-only routes

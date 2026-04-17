@@ -24,6 +24,7 @@ public class TicketEmailService {
     @Value("${spring.mail.username:}")
     private String fromAddress;
 
+    // Set to false if mail is not configured — app still works, just no email
     @Value("${app.mail.enabled:true}")
     private boolean mailEnabled;
 

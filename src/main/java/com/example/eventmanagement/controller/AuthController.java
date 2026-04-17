@@ -4,7 +4,6 @@ import com.example.eventmanagement.exception.DuplicateEmailException;
 import com.example.eventmanagement.exception.DuplicateUsernameException;
 import com.example.eventmanagement.model.User;
 import com.example.eventmanagement.service.UserService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +16,13 @@ public class AuthController {
 
     private final UserService userService;
 
-    @Value("${app.admin-secret:admin123}")
-    private String adminSecret;
-
     public AuthController(UserService userService) {
         this.userService = userService;
+    }
+
+    @GetMapping("/")
+    public String redirectToLogin() {
+        return "redirect:/login";
     }
 
     @GetMapping("/login")
@@ -41,22 +42,8 @@ public class AuthController {
             @RequestParam String email,
             @RequestParam String password,
             @RequestParam(name = "registerRole", defaultValue = "user") String registerRole,
-            @RequestParam(required = false) String secret,
             Model model,
             RedirectAttributes redirectAttributes) {
-
-        // Validate admin secret if admin role selected
-        if ("admin".equals(registerRole)) {
-            if (secret == null || !adminSecret.equals(secret.trim())) {
-                User u = new User();
-                u.setUsername(username);
-                u.setEmail(email);
-                model.addAttribute("user", u);
-                model.addAttribute("selectedRole", "admin");
-                model.addAttribute("error", "Invalid admin secret key.");
-                return "register";
-            }
-        }
 
         String grantedRole = "admin".equals(registerRole) ? "ROLE_ADMIN" : "ROLE_USER";
 
