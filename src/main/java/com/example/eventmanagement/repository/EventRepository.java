@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByTitleContainingIgnoreCase(String title);
+    boolean existsByTitleAndCreatedBy(String title, String createdBy);
+    List<Event> findByCreatedBy(String createdBy);
 }
